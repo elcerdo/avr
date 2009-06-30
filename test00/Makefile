@@ -112,12 +112,12 @@ OPTLEVEL=0
 # one of the valid "-c PROGRAMMER-ID" values 
 # described in the avrdude info page.
 # 
-AVRDUDE_PROGRAMMERID=stk500
+AVRDUDE_PROGRAMMERID=usbasp
 
 # port--serial or parallel port to which your 
 # hardware programmer is attached
 #
-AVRDUDE_PORT=/dev/ttyS0
+AVRDUDE_PORT=
 
 
 ####################################################
