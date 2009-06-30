@@ -37,7 +37,7 @@ int main(void) {
 
 	uint32_t counter;
 	while (1) {
-		for (counter=0; counter<800; counter++) {}
+		for (counter=0; counter<64000; counter++) {}
 		bump();
 	}
 
