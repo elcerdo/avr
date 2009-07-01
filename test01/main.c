@@ -6,6 +6,7 @@ typedef enum {UP, DOWN} dir_t;
 
 static uint8_t pos=0;
 static dir_t dir=UP;
+static uint8_t delay=0;
 
 void bump(void) {
 	PORTA = ~_BV(pos);
@@ -20,8 +21,17 @@ void bump(void) {
 		else pos--;
 		break;
 	}
+
+	delay += 8;
+	delay %= 128;
+
+	OCR0 = 100+delay;
 }
-	
+
+ISR(TIMER0_COMP_vect) {
+	PORTB = _BV(PB0) & ~PORTB;
+}
+
 
 int main(void) {
 	cli();
@@ -31,7 +41,12 @@ int main(void) {
 	DDRB = _BV(DDB0);
 
 	//light dev board led
-	PORTB = ~_BV(PB0);
+	PORTB = _BV(PB0);
+
+	//setup timer 0
+	TCCR0 = _BV(WGM01) | _BV(CS02) |_BV(CS00);
+	OCR0 = 128;
+	TIMSK = _BV(OCIE0);
 
 	sei();
 
