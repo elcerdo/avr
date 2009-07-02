@@ -1,0 +1,8 @@
+*~
+*.hex
+*.out
+*.s
+*.map
+*.lst
+*.o
+README.pdf

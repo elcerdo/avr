@@ -13,7 +13,7 @@ void bump(void) {
 
 	switch (dir) {
 	case UP:
-		if (pos == 3) dir = DOWN;
+		if (pos == 6) dir = DOWN;
 		else pos++;
 		break;
 	case DOWN:
@@ -21,15 +21,15 @@ void bump(void) {
 		else pos--;
 		break;
 	}
-
-	delay += 8;
-	delay %= 128;
-
-	OCR0 = 100+delay;
 }
 
 ISR(TIMER0_COMP_vect) {
 	PORTB = _BV(PB0) & ~PORTB;
+
+	delay += 4;
+	delay %= 128;
+
+	OCR0 = 100+delay;
 }
 
 
@@ -37,7 +37,7 @@ int main(void) {
 	cli();
 	
 	//set pins as output
-	DDRA = _BV(DDA0) | _BV(DDA1) | _BV(DDA2) | _BV(DDA3);
+	DDRA = _BV(DDA0) | _BV(DDA1) | _BV(DDA2) | _BV(DDA3) | _BV(DDA4) | _BV(DDA5) | _BV(DDA6);
 	DDRB = _BV(DDB0);
 
 	//light dev board led
