@@ -88,7 +88,7 @@ PROJECTNAME=test02
 PRJSRC=main.c
 
 # additional includes (e.g. -I/path/to/mydir)
-INC=
+INC=-I../include/
 
 # libraries to link in (e.g. -lmylib)
 LIBS=
