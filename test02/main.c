@@ -10,10 +10,6 @@
 #define PSCLEAR PA1
 #define PSCLOCK PA6
 
-ISR(TIMER0_COMP_vect) {
-	OCR0 += 4;
-}
-
 void sel_valid_clock(void) {
 	PORTA |= _BV(PSCLOCK);
 	PORTA &= ~_BV(PSCLOCK);
@@ -45,41 +41,40 @@ void sel_load_value(const uint8_t value) {
 #define PRCLOCK PA5
 
 void read_valid_clock(void) {
-	uint8_t l;
-	for (l=0; l<255; l++) { }
 	PORTA |= _BV(PRCLOCK);
-	for (l=0; l<255; l++) { }
 	PORTA &= ~_BV(PRCLOCK);
 }
 
 void read_load_value(void) {
-	uint8_t l;
-	for (l=0; l<255; l++) { }
-	PORTA |= _BV(PA4);
-	for (l=0; l<255; l++) { }
 	PORTA &= ~_BV(PRLOAD);
-	for (l=0; l<255; l++) { }
 	PORTA |= _BV(PRLOAD);
-	for (l=0; l<255; l++) { }
-	PORTA &= ~_BV(PA4);
-	for (l=0; l<255; l++) { }
 }
 
 uint8_t read_line(void) {
 	uint8_t keys=0xff;
 	uint8_t k;
-	uint32_t l;
 
 	read_load_value();
-	for (l=0; l<60000; l++) { }
-
 	for (k=0; k<8; k++) {
 		if (bit_is_set(PINA,PRDATA)) keys &= ~ _BV(k);
 		read_valid_clock();
 
-		for (l=0; l<60000; l++) { }
 	}
 	return keys;
+}
+
+static uint8_t *keypad = NULL;
+
+void update_keypad(void) {
+	uint8_t k;
+
+	sel_load_value(0x70);
+	PORTA |= _BV(PSDATA);
+
+	for (k=0; k<2; k++) {
+		keypad[k] = read_line();
+		sel_valid_clock();
+	}
 }
 
 #define PSTATUS PB0
@@ -89,6 +84,9 @@ void toggle_led(void) {
 	else PORTB |= _BV(PSTATUS);
 }
 	
+ISR(TIMER0_COMP_vect) {
+	OCR0 += 4;
+}
 
 int main(void) {
 	uint32_t k,l;
@@ -110,17 +108,21 @@ int main(void) {
 	OCR0 = 0x70;
 	TIMSK = _BV(OCIE0);
 
-	for (l=0; l<60000; l++) { }
+	keypad = malloc(2);
+
 	sei();
 
 	while (1) {
-		sel_load_value(0b00111101);
-		i = read_line();
+		update_keypad();
+		i = (keypad[0] & 0x0f) | ((keypad[1] & 0x0f) << 4);
 		sel_load_value(~i);
 		toggle_led();
-		for (l=0; l<60000; l++) { }
-		for (l=0; l<60000; l++) { }
+		for (l=0; l<10000; l++) { }
 	}
+
+	cli();
+
+	free(keypad);
 
 	return 0;
 }
