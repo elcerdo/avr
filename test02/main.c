@@ -19,12 +19,15 @@ void sel_valid_clock(void) {
 	PORTA &= ~_BV(PSCLOCK);
 }
 
+void sel_clear_value(void) {
+	PORTA &= ~_BV(PSCLEAR);
+	PORTA |= _BV(PSCLEAR);
+}
+
 void sel_load_value(const uint8_t value) {
 	uint8_t k;
 
-	PORTA &= ~_BV(PSCLEAR);
-	PORTA |= _BV(PSCLEAR);
-
+	sel_clear_value();
 	for (k=0; k<8; k++) {
 		if ( value & _BV(k) ) PORTA |= _BV(PSDATA);
 		else PORTA &= ~_BV(PSDATA);
@@ -42,48 +45,81 @@ void sel_load_value(const uint8_t value) {
 #define PRCLOCK PA5
 
 void read_valid_clock(void) {
+	uint8_t l;
+	for (l=0; l<255; l++) { }
 	PORTA |= _BV(PRCLOCK);
+	for (l=0; l<255; l++) { }
 	PORTA &= ~_BV(PRCLOCK);
 }
 
 void read_load_value(void) {
+	uint8_t l;
+	for (l=0; l<255; l++) { }
+	PORTA |= _BV(PA4);
+	for (l=0; l<255; l++) { }
 	PORTA &= ~_BV(PRLOAD);
+	for (l=0; l<255; l++) { }
 	PORTA |= _BV(PRLOAD);
+	for (l=0; l<255; l++) { }
+	PORTA &= ~_BV(PA4);
+	for (l=0; l<255; l++) { }
 }
 
+uint8_t read_line(void) {
+	uint8_t keys=0xff;
+	uint8_t k;
+	uint32_t l;
+
+	read_load_value();
+	for (l=0; l<60000; l++) { }
+
+	for (k=0; k<8; k++) {
+		if (bit_is_set(PINA,PRDATA)) keys &= ~ _BV(k);
+		read_valid_clock();
+
+		for (l=0; l<60000; l++) { }
+	}
+	return keys;
+}
+
+#define PSTATUS PB0
+
+void toggle_led(void) {
+	if (bit_is_set(PORTB,PSTATUS)) PORTB &= ~_BV(PSTATUS);
+	else PORTB |= _BV(PSTATUS);
+}
+	
+
 int main(void) {
-	uint32_t k;
+	uint32_t k,l;
 	uint8_t i;
 
 	cli();
 	
 	//set pins as output
-	DDRA = _BV(DDA0) | _BV(DDA1) | _BV(DDA3) | _BV(DDA5) | _BV(DDA6);
+	DDRA = _BV(DDA0) | _BV(DDA1) | _BV(DDA3) | _BV(DDA4) | _BV(DDA5) | _BV(DDA6);
 	DDRB = _BV(DDB0) | _BV(DDB3);
 
 	//light dev board led
 	PORTA |= _BV(PRLOAD);
-	PORTB |= _BV(PB0);
+	PORTA &= _BV(PA4);
+	PORTB &= ~_BV(PB0);
 
 	//setup timer 0
 	TCCR0 = _BV(WGM01) | _BV(CS02) | _BV(CS00) | _BV(COM00);
 	OCR0 = 0x70;
 	TIMSK = _BV(OCIE0);
 
+	for (l=0; l<60000; l++) { }
 	sei();
 
-	i=0;
 	while (1) {
+		sel_load_value(0b00111101);
+		i = read_line();
 		sel_load_value(~i);
-
-		if ( i%4 == 0 ) read_load_value();
-		read_valid_clock();
-
-		if (bit_is_set(PINA,PRDATA)) PORTB &= ~_BV(PB0);
-		else PORTB |= _BV(PB0);
-
-		for (k=0; k<65000; k++) { }
-		i++;
+		toggle_led();
+		for (l=0; l<60000; l++) { }
+		for (l=0; l<60000; l++) { }
 	}
 
 	return 0;
