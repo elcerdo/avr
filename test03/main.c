@@ -45,7 +45,7 @@ int main(void) {
 	PORTB &= ~_BV(PB0);
 
 	//setup timer 0
-	TCCR0 = _BV(WGM01) | _BV(WGM00) | _BV(CS00) | _BV(CS00) | _BV(COM01);
+	TCCR0 = _BV(WGM00) | _BV(CS00) | _BV(CS00) | _BV(COM01);
 	TIMSK = _BV(TOIE0);
 
 	keypad = malloc(2);
@@ -56,9 +56,14 @@ int main(void) {
 
 	for (l=0; l<256; l++) {
 		sinus[l] = (uint8_t)( 127.5 + 127.5 * sin( M_PI * (float)(l) / 128. ) );
-		saw[l] = (uint8_t)( l );
+
+		if (l < 64) saw[l] = (uint8_t)( 128 + 2*l );
+		else if (l < 192) saw[l] = (uint8_t)( 256 - 2*(l-64) );
+		else saw[l] = (uint8_t)( 2*(l-192) );
+
 		noise[l] = (uint8_t)( rand() );
-		if (l < 72) rect[l] = 255;
+
+		if (l < 128) rect[l] = 255;
 		else rect[l] = 0;
 	}
 
