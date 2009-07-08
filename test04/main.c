@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "keypad.h"
@@ -30,32 +31,83 @@ ISR(TIMER0_OVF_vect) {
 // UART stuff
 //
 
-const static char *current_string = NULL;
-static size_t current_size = 0;
+#define BUFFER_SIZE 256
 
-void send_string_uart(const char *string,size_t size) {
+static char *tx_buffer = NULL;
+const static char *tx_current = NULL;
+static size_t tx_size = 0;
+
+static char *rx_buffer = NULL;
+static char *rx_current = NULL;
+static size_t rx_size = 0;
+static size_t rx_lines = 0;
+
+void uart_send_string(const char *string,size_t size) {
 	if (size == 0) return;
-	do {} while (bit_is_set(UCSRA,UDRE) && current_size !=0);
+	do {} while (bit_is_set(UCSRA,UDRE) && tx_size !=0);
 
-	current_string = string;
-	current_size = size;
+	strlcpy(tx_buffer,string,BUFFER_SIZE);
 
-	status_set(1);
-	UDR = *current_string;
-	current_string++;
-	current_size--;
+	tx_current = tx_buffer;
+	tx_size = size;
+	if (tx_size > BUFFER_SIZE) tx_size = BUFFER_SIZE;
+
+	UDR = *tx_current;
+	tx_current++;
+	tx_size--;
 }
 
 ISR(USART_TXC_vect) {
-	if (current_size > 0 && *current_string != 0) {
-		UDR = *current_string;
-		current_string++;
-		current_size--;
+	if (tx_size > 0 && *tx_current != 0) {
+		UDR = *tx_current;
+		tx_current++;
+		tx_size--;
 	} else {
-		current_string = NULL;
-		current_size = 0;
-		status_set(0);
+		tx_current = NULL;
+		tx_size = 0;
 	}
+}
+
+ISR(USART_RXC_vect) {
+	if (rx_size < BUFFER_SIZE-1 && rx_lines == 0) {
+		*rx_current = UDR;
+		if (*rx_current == 0 || *rx_current == '\n' || rx_size == BUFFER_SIZE-2) {
+			status_set(1);
+			*rx_current = 0;
+			rx_lines++;
+		}
+		rx_size++;
+		rx_current++;
+	} else {
+		uint8_t dummy;
+		dummy = UDR;
+	}
+}
+
+void uart_init(void) {
+	DDRD |= _BV(PD1);
+	UBRRL = 103; //see page 168
+	UCSRB = _BV(TXEN) | _BV(TXCIE) | _BV(RXEN) | _BV(RXCIE);
+	tx_buffer = malloc(BUFFER_SIZE);
+	rx_buffer = malloc(BUFFER_SIZE);
+	rx_current = rx_buffer;
+}
+
+uint8_t uart_read_line(char *string,size_t size) {
+	if ( rx_lines == 0 ) return 0;
+
+	strlcpy(string,rx_buffer,size);
+	rx_current = rx_buffer;
+	rx_size = 0;
+	rx_lines--;
+	status_set(0);
+
+	return 1;
+}
+
+void uart_free(void) {
+	free(tx_buffer);
+	free(rx_buffer);
 }
 
 int main(void) {
@@ -68,20 +120,13 @@ int main(void) {
 	
     keypad_init();
 	status_init();
+	uart_init();
 	keypad = keypad_get();
-
-	//set pins as output
-	DDRD = _BV(PD1);
-
-	//light dev board led
 
 	//setup timer 0
 	TCCR0 = _BV(WGM00) | _BV(CS00) | _BV(CS00) | _BV(COM01);
 	TIMSK = _BV(TOIE0);
 
-	//setup UART
-	UBRRL = 103; //see page 168
-	UCSRB = _BV(TXEN) | _BV(TXCIE);
 
 	//compute signals
 	sinus = malloc(256);
@@ -113,7 +158,7 @@ int main(void) {
 
 	sei();
 
-	send_string_uart("\n\nstartup\n",10);
+	uart_send_string("\n\nstartup\n",10);
 
 	while (1) {
 		keypad_update();
@@ -132,7 +177,12 @@ int main(void) {
 		if (bit_is_set(keypad[1],3)) { speed = 8; delay = DELAY; DDRB |= _BV(PAUDIO); }
 		sei();
 
-		if (old_table!=table || old_speed!=speed) send_string_uart(status_text,10);
+		if (uart_read_line(status_text,256)) {
+			size_t length = strnlen(status_text,255);
+			status_text[length]='\n'; 
+			status_text[length+1]=0;
+		}
+		if (old_table!=table || old_speed!=speed) uart_send_string(status_text,256);
 		old_table = table;
 		old_speed = speed;
 	}
@@ -140,6 +190,8 @@ int main(void) {
 	cli();
 
 	keypad_free();
+	uart_free();
+
 	free(status_text);
 	free(sinus);
 	free(saw);

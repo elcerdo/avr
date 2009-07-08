@@ -7,7 +7,7 @@
 #include <avr/io.h>
 
 void status_init(void);
-void status_toogle(void);
+void status_toggle(void);
 void status_set(uint8_t k);
 
 #endif

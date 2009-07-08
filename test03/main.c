@@ -78,7 +78,7 @@ int main(void) {
 		if (bit_is_set(keypad[1],3)) speed = 8;
 		sei();
 
-		status_toogle();
+		status_toggle();
 	}
 
 	cli();

@@ -53,7 +53,7 @@ int main(void) {
 		if (bit_is_set(keypad[1],2)) { TCCR0 &= ~_BV(CS02); TCCR0 |= _BV(CS01); TCCR0 |= _BV(CS00); }
 		if (bit_is_set(keypad[1],3)) { TCCR0 &= ~_BV(CS02); TCCR0 |= _BV(CS01); TCCR0 &= ~_BV(CS00); }
 
-		status_toogle();
+		status_toggle();
 		for (l=0; l<10000; l++) { }
 	}
 

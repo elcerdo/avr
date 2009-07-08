@@ -5,7 +5,7 @@ void status_init(void) {
     PORTB |= _BV(PSTATUS);
 }
 
-void status_toogle(void) {
+void status_toggle(void) {
 	if (bit_is_set(PORTB,PSTATUS)) PORTB &= ~_BV(PSTATUS);
 	else PORTB |= _BV(PSTATUS);
 }
