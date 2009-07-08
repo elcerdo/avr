@@ -2,13 +2,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "keypad.h"
-
-#define PSTATUS PB0
-
-void toggle_led(void) {
-	if (bit_is_set(PORTB,PSTATUS)) PORTB &= ~_BV(PSTATUS);
-	else PORTB |= _BV(PSTATUS);
-}
+#include "status.h"
 
 #define PAUDIO PB3
 
@@ -21,33 +15,31 @@ ISR(TIMER0_COMP_vect) {
 
 int main(void) {
 	uint32_t l;
-	uint8_t i;
+	uint8_t *keypad = NULL;
 
 	cli();
 	
-	//set pins as output
-	DDRA = _BV(PSDATA) | _BV(PSCLEAR) | _BV(PRLOAD) | _BV(PRCLOCK) | _BV(PSCLOCK);
-	DDRB = _BV(PSTATUS) | _BV(PAUDIO);
+    keypad_init();
+	status_init();
+	keypad = keypad_get();
 
-	//light dev board led
-	PORTA |= _BV(PRLOAD);
-	PORTB &= ~_BV(PB0);
+	//set pins as output
+	DDRB |= _BV(PAUDIO);
+
 
 	//setup timer 0
 	TCCR0 = _BV(WGM01) | _BV(CS02) | _BV(CS00) | _BV(COM00);
 	OCR0 = tone;
 	TIMSK = _BV(OCIE0);
 
-	keypad = malloc(2);
-
 	sei();
 
 	while (1) {
-		update_keypad();
+		keypad_update();
 
 		//display keypad
-		i = (keypad[0] & 0x0f) | ((keypad[1] & 0x0f) << 4);
-		sel_load_value(~i);
+		uint8_t i = (keypad[0] & 0x0f) | ((keypad[1] & 0x0f) << 4);
+		keypad_load_value(~i);
 
 		//select tone
 		if (bit_is_set(keypad[0],0)) tone=0xff;
@@ -61,13 +53,13 @@ int main(void) {
 		if (bit_is_set(keypad[1],2)) { TCCR0 &= ~_BV(CS02); TCCR0 |= _BV(CS01); TCCR0 |= _BV(CS00); }
 		if (bit_is_set(keypad[1],3)) { TCCR0 &= ~_BV(CS02); TCCR0 |= _BV(CS01); TCCR0 &= ~_BV(CS00); }
 
-		toggle_led();
-		for (l=0; l<5000; l++) { }
+		status_toogle();
+		for (l=0; l<10000; l++) { }
 	}
 
 	cli();
 
-	free(keypad);
+	keypad_free();
 
 	return 0;
 }

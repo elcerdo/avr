@@ -5,4 +5,5 @@
 *.map
 *.lst
 *.o
+*.a
 README.pdf

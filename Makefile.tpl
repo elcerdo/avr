@@ -78,22 +78,21 @@ PROGRAMMER_MCU=m32
 
 # Name of our project
 # (use a single word, e.g. 'myproject')
-PROJECTNAME=myproject
+PROJECTNAME=test04
 
 # Source files
 # List C/C++/Assembly source files:
 # (list all files to compile, e.g. 'a.c b.cpp as.S'):
 # Use .cc, .cpp or .C suffix for C++ files, use .S 
 # (NOT .s !!!) for assembly source code files.
-# ex: PRJSRC=main.c myclass.cpp lowlevelstuff.S
-PRJSRC=
+PRJSRC=main.c
 
 # additional includes (e.g. -I/path/to/mydir)
-# ex: INC=-I/path/to/include
-INC=
+INC=-I../include/
 
 # libraries to link in (e.g. -lmylib)
-LIBS=
+LIBS_INC=-L../include/
+LIBS=-lm -lsatel
 
 # Optimization level, 
 # use s (size opt), 1, 2, 3 or 0 (off)
@@ -162,7 +161,7 @@ ASMFLAGS =-I. $(INC) -mmcu=$(MCU)        \
 
 # linker
 LDFLAGS=-Wl,-Map,$(TRG).map -mmcu=$(MCU) \
-	-lm $(LIBS)
+	$(LIBS_INC)
 
 ##### executables ####
 CC=avr-gcc
@@ -239,7 +238,7 @@ $(DUMPTRG): $(TRG)
 
 
 $(TRG): $(OBJDEPS) 
-	$(CC) $(LDFLAGS) -o $(TRG) $(OBJDEPS)
+	$(CC) $(LDFLAGS) -o $(TRG) $(OBJDEPS) $(LIBS)
 
 
 #### Generating assembly ####

@@ -1,20 +1,10 @@
-#include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "keypad.h"
-
-#define PSTATUS PB0
-
-void toggle_led(void) {
-	if (bit_is_set(PORTB,PSTATUS)) PORTB &= ~_BV(PSTATUS);
-	else PORTB |= _BV(PSTATUS);
-}
-
-void set_status(uint8_t k) {
-	if (k) PORTB &= ~_BV(PSTATUS);
-	else PORTB |= _BV(PSTATUS);
-}
+#include "status.h"
 
 #define PAUDIO PB3
 #define DELAY 0x8000
@@ -36,49 +26,54 @@ ISR(TIMER0_OVF_vect) {
 	time += speed;
 }
 
+//
+// UART stuff
+//
+
 const static char *current_string = NULL;
 static size_t current_size = 0;
 
-void send_uart(const char *string,size_t size) {
+void send_string_uart(const char *string,size_t size) {
 	if (size == 0) return;
 	do {} while (bit_is_set(UCSRA,UDRE) && current_size !=0);
 
 	current_string = string;
 	current_size = size;
 
-	set_status(1);
+	status_set(1);
 	UDR = *current_string;
 	current_string++;
 	current_size--;
 }
 
 ISR(USART_TXC_vect) {
-	if (current_size > 0) {
+	if (current_size > 0 && *current_string != 0) {
 		UDR = *current_string;
 		current_string++;
 		current_size--;
 	} else {
 		current_string = NULL;
-		set_status(0);
+		current_size = 0;
+		status_set(0);
 	}
 }
 
-const static char *text="le chat est super cool!!!\n";
-
 int main(void) {
 	uint32_t l;
+	uint8_t *keypad = NULL;
 	uint8_t *old_table;
 	uint8_t old_speed;
 
 	cli();
 	
+    keypad_init();
+	status_init();
+	keypad = keypad_get();
+
 	//set pins as output
-	DDRA = _BV(PSDATA) | _BV(PSCLEAR) | _BV(PRLOAD) | _BV(PRCLOCK) | _BV(PSCLOCK);
-	DDRB = _BV(PSTATUS);
 	DDRD = _BV(PD1);
 
 	//light dev board led
-	PORTA |= _BV(PRLOAD);
 
 	//setup timer 0
 	TCCR0 = _BV(WGM00) | _BV(CS00) | _BV(CS00) | _BV(COM01);
@@ -89,7 +84,6 @@ int main(void) {
 	UCSRB = _BV(TXEN) | _BV(TXCIE);
 
 	//compute signals
-	keypad = malloc(2);
 	sinus = malloc(256);
 	saw = malloc(256);
 	rect = malloc(256);
@@ -113,13 +107,16 @@ int main(void) {
 	old_table = table;
 	old_speed = speed;
 
+	//uart echo setup
+	char *status_text = malloc(256);
+	snprintf(status_text,256,"coucou %d\n",10);
+
 	sei();
 
-	set_status(0);
-	send_uart(text,26);
+	send_string_uart("\n\nstartup\n",10);
 
 	while (1) {
-		update_keypad();
+		keypad_update();
 
 		cli();
 		//select table
@@ -135,14 +132,15 @@ int main(void) {
 		if (bit_is_set(keypad[1],3)) { speed = 8; delay = DELAY; DDRB |= _BV(PAUDIO); }
 		sei();
 
-		if (old_table!=table || old_speed!=speed) send_uart("top\n",4);
+		if (old_table!=table || old_speed!=speed) send_string_uart(status_text,10);
 		old_table = table;
 		old_speed = speed;
 	}
 
 	cli();
 
-	free(keypad);
+	keypad_free();
+	free(status_text);
 	free(sinus);
 	free(saw);
 	free(rect);

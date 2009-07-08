@@ -1,15 +1,9 @@
 #include <stdlib.h>
-#include <math.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "keypad.h"
-
-#define PSTATUS PB0
-
-void toggle_led(void) {
-	if (bit_is_set(PORTB,PSTATUS)) PORTB &= ~_BV(PSTATUS);
-	else PORTB |= _BV(PSTATUS);
-}
+#include "status.h"
+#include <math.h>
 
 #define PAUDIO PB3
 #define DELAY 0xffff
@@ -33,22 +27,18 @@ ISR(TIMER0_OVF_vect) {
 
 int main(void) {
 	uint32_t l;
+	uint8_t *keypad = NULL;
 
 	cli();
 	
-	//set pins as output
-	DDRA = _BV(PSDATA) | _BV(PSCLEAR) | _BV(PRLOAD) | _BV(PRCLOCK) | _BV(PSCLOCK);
-	DDRB = _BV(PSTATUS);
-
-	//light dev board led
-	PORTA |= _BV(PRLOAD);
-	PORTB &= ~_BV(PB0);
+    keypad_init();
+	status_init();
+	keypad = keypad_get();
 
 	//setup timer 0
 	TCCR0 = _BV(WGM00) | _BV(CS00) | _BV(CS00) | _BV(COM01);
 	TIMSK = _BV(TOIE0);
 
-	keypad = malloc(2);
 	sinus = malloc(256);
 	saw = malloc(256);
 	rect = malloc(256);
@@ -72,7 +62,7 @@ int main(void) {
 	sei();
 
 	while (1) {
-		update_keypad();
+		keypad_update();
 
 		cli();
 		//select table
@@ -87,11 +77,14 @@ int main(void) {
 		if (bit_is_set(keypad[1],2)) speed = 4;
 		if (bit_is_set(keypad[1],3)) speed = 8;
 		sei();
+
+		status_toogle();
 	}
 
 	cli();
 
-	free(keypad);
+	keypad_free();
+
 	free(sinus);
 	free(saw);
 	free(rect);

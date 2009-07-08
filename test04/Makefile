@@ -91,7 +91,8 @@ PRJSRC=main.c
 INC=-I../include/
 
 # libraries to link in (e.g. -lmylib)
-LIBS=
+LIBS_INC=-L../include/
+LIBS=-lm -lsatel
 
 # Optimization level, 
 # use s (size opt), 1, 2, 3 or 0 (off)
@@ -160,7 +161,7 @@ ASMFLAGS =-I. $(INC) -mmcu=$(MCU)        \
 
 # linker
 LDFLAGS=-Wl,-Map,$(TRG).map -mmcu=$(MCU) \
-	-lm $(LIBS)
+	$(LIBS_INC)
 
 ##### executables ####
 CC=avr-gcc
@@ -237,7 +238,7 @@ $(DUMPTRG): $(TRG)
 
 
 $(TRG): $(OBJDEPS) 
-	$(CC) $(LDFLAGS) -o $(TRG) $(OBJDEPS)
+	$(CC) $(LDFLAGS) -o $(TRG) $(OBJDEPS) $(LIBS)
 
 
 #### Generating assembly ####
