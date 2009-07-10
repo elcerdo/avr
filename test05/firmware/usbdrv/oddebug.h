@@ -109,10 +109,14 @@ extern void odDebug(uchar prefix, uchar *data, uchar len);
 #   define  ODDBG_UDR   UDR0
 #endif
 
+#ifndef UART_BAUD
+#   define UART_BAUD 9200
+#endif
+
 static inline void  odDebugInit(void)
 {
     ODDBG_UCR |= (1<<ODDBG_TXEN);
-    ODDBG_UBRR = F_CPU / (19200 * 16L) - 1;
+    ODDBG_UBRR = F_CPU / (UART_BAUD * 16L) - 1;
 }
 #else
 #   define odDebugInit()
