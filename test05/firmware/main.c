@@ -48,9 +48,9 @@ static uchar    dataBuffer[4];  /* buffer must stay valid when usbFunctionSetup 
         return 4;
     }else if(rq->bRequest == CUSTOM_RQ_SET_STATUS){
         if(rq->wValue.bytes[0] & 1){    /* set LED */
-            LED_PORT_OUTPUT |= _BV(LED_BIT);
-        }else{                          /* clear LED */
             LED_PORT_OUTPUT &= ~_BV(LED_BIT);
+        }else{                          /* clear LED */
+            LED_PORT_OUTPUT |= _BV(LED_BIT);
         }
     }else if(rq->bRequest == CUSTOM_RQ_GET_STATUS){
         dataBuffer[0] = ((LED_PORT_OUTPUT & _BV(LED_BIT)) != 0);

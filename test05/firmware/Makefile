@@ -9,11 +9,11 @@
 
 DEVICE  = atmega32
 F_CPU   = 16000000	# in Hz
-FUSE_L  = # see below for fuse values for particular devices
-FUSE_H  = 
+FUSE_L  = 0b11101111
+FUSE_H  = 0b10011001
 AVRDUDE = avrdude -c usbasp -p $(DEVICE) # edit this line for your programmer
 
-CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0
+CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=1  -funsigned-char -fpack-struct -fshort-enums -funsigned-bitfields
 OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o
 
 COMPILE = avr-gcc -Wall -Os -DF_CPU=$(F_CPU) $(CFLAGS) -mmcu=$(DEVICE)
@@ -97,6 +97,7 @@ COMPILE = avr-gcc -Wall -Os -DF_CPU=$(F_CPU) $(CFLAGS) -mmcu=$(DEVICE)
 #        | +------------------ EESAVE (preserve EEPROM on Chip Erase -> not preserved)
 #        +-------------------- DWEN (debug wire enable)
 
+all: main.hex
 
 # symbolic targets:
 help:
@@ -106,8 +107,6 @@ help:
 	@echo "make fuse ...... to flash the fuses"
 	@echo "make flash ..... to flash the firmware (use this on metaboard)"
 	@echo "make clean ..... to delete objects and hex file"
-
-hex: main.hex
 
 program: flash fuse
 
