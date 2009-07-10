@@ -27,7 +27,7 @@ NAME = set-led
 OBJECTS = opendevice.o $(NAME).o
 
 CC		= gcc
-CFLAGS	= $(CPPFLAGS) $(USBFLAGS) -O -g -Wall
+CFLAGS	= $(CPPFLAGS) $(USBFLAGS) -DENABLE_TEST -O -g -Wall
 LIBS	= $(USBLIBS)
 
 PROGRAM = $(NAME)$(EXE_SUFFIX)
