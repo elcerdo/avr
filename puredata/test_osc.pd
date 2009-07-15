@@ -1,0 +1,11 @@
+#N canvas 922 104 450 299 10;
+#X obj 138 206 sendOSC;
+#X msg 138 146 connect localhost 9999;
+#X msg 153 177 send /prout/crotte 1;
+#X msg 121 121 disconnect;
+#X obj 43 51 dumpOSC 9999;
+#X obj 43 81 print message;
+#X connect 1 0 0 0;
+#X connect 2 0 0 0;
+#X connect 3 0 0 0;
+#X connect 4 0 5 0;
