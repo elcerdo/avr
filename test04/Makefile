@@ -96,7 +96,7 @@ LIBS=-lm -lsatel
 
 # Optimization level, 
 # use s (size opt), 1, 2, 3 or 0 (off)
-OPTLEVEL=0
+OPTLEVEL=s
 
 
 #####      AVR Dude 'writeflash' options       #####

@@ -159,6 +159,7 @@ int main(void) {
 	sei();
 
 	uart_send_string("\n\nstartup\n",10);
+	status_set(1);
 
 	while (1) {
 		keypad_update();
