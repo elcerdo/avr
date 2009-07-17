@@ -8,32 +8,37 @@
 class AutonomeWidget : public QWidget {
 Q_OBJECT
 public:
-    AutonomeWidget(unsigned int n=8,unsigned int m=8,qreal border=10.,qreal min_pad_size=5.,QWidget *parent=0);
+    AutonomeWidget(unsigned int n=12,unsigned int m=8,qreal border=10.,qreal min_pad_size=15.,QWidget *parent=0);
     ~AutonomeWidget();
 protected:
     virtual void paintEvent(QPaintEvent *event);
-    virtual void updateInternal(void);
+    virtual void resizeEvent(QResizeEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+signals:
+    void padPressed(int i,int j);
+    void padReleased(int i,int j);
 private:
-    class Pad {
-    public:
-        enum KeyStatus { UP, DOWN };
-        enum LedStatus { ON, OFF };
+    virtual void updateInternal(void);
 
-        Pad(size_t i,size_t j,const QPointF &base,const qreal &size);
+    struct Pad {
+        enum KeyStatus { UP=0 , DOWN=1 };
+        enum LedStatus { ON=2 , OFF=0 };
+
+        Pad(size_t i,size_t j,size_t n,size_t m);
         void paint(QPainter &painter);
 
         KeyStatus key;
         LedStatus led;
-    protected:
-        size_t i,j;
-
-        QRectF rect;
-        const QPointF &base;
-        const qreal &size;
+        const size_t i,j;
+        const size_t n,m;
+        const QRectF rect;
     };
 
     typedef QVector<Pad*> Pads;
     Pads pads;
+    Pad *left_pad;
+    Pad *right_pad;
 
     size_t n,m;
     QPointF base;
