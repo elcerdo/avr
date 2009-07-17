@@ -52,8 +52,9 @@ void SettingsWidget::saveSettings() {
     QSettings settings;
     settings.clear();
 
+    qDebug("[settings] saving settings");
     for (Entries::const_iterator i=entries.constBegin(); i!=entries.constEnd(); i++) {
-        qDebug("[settings] saving %s %s",qPrintable(i.key()),qPrintable(i.value()->text()));
+        //qDebug("[settings] saving %s %s",qPrintable(i.key()),qPrintable(i.value()->text()));
         settings.setValue(i.key(),i.value()->text());
     }
 }
@@ -61,8 +62,9 @@ void SettingsWidget::saveSettings() {
 void SettingsWidget::loadSettings() {
     QSettings settings;
 
+    qDebug("[settings] loading settings");
     for (Entries::const_iterator i=entries.constBegin(); i!=entries.constEnd(); i++) if (settings.contains(i.key())) {
-        qDebug("[settings] loading %s %s",qPrintable(i.key()),qPrintable(settings.value(i.key()).toString()));
+        //qDebug("[settings] loading %s %s",qPrintable(i.key()),qPrintable(settings.value(i.key()).toString()));
         i.value()->setText(settings.value(i.key()).toString());
     }
 

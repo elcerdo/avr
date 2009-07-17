@@ -4,12 +4,14 @@
 #include <QMainWindow>
 #include "AutonomeWidget.h"
 #include "SettingsWidget.h"
+#include "OSCWidget.h"
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
 public:
     MainWindow(QWidget *parent = NULL);
 private:
+    OSCWidget *osc;
     AutonomeWidget *autonome;
     SettingsWidget *settings;
 };

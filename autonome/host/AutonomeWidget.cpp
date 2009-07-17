@@ -5,7 +5,7 @@
 #include <QPen>
 #include <QColor>
 
-const static QBrush brushes[4] = { QBrush(Qt::white), QBrush(QColor::fromRgb(230,230,230)), QBrush(QColor::fromRgb(170,255,255)), QBrush(Qt::red) };
+const static QBrush brushes[4] = { QBrush(Qt::white), QBrush(QColor::fromRgb(230,230,230)), QBrush(QColor::fromRgb(170,255,255)), QBrush(QColor::fromRgb(120,200,200)) };
 
 AutonomeWidget::Pad::Pad(size_t ii,size_t jj,size_t nn,size_t mm) : key(UP), led(OFF), i(ii), j(jj), n(nn), m(mm), rect((jj-mm/2.)+.05,(ii-nn/2.)+.05,.9,.9) {}
 
@@ -54,9 +54,10 @@ void AutonomeWidget::paintEvent(QPaintEvent *event) {
 
 void AutonomeWidget::mousePressEvent(QMouseEvent *event) {
     Pad **target_pad = NULL;
+    Pad **other_pad = NULL;
     switch (event->button()) {
-    case Qt::LeftButton: target_pad = &left_pad; break;
-    case Qt::RightButton: target_pad = &right_pad; break;
+    case Qt::LeftButton: target_pad = &left_pad; other_pad = &right_pad; break;
+    case Qt::RightButton: target_pad = &right_pad; other_pad = &left_pad; break;
     default: return; break;
     }
 
@@ -67,13 +68,13 @@ void AutonomeWidget::mousePressEvent(QMouseEvent *event) {
     click_pos /= size;
 
     for (Pads::iterator i=pads.begin(); i!=pads.end(); i++) if ( (*i)->rect.contains(click_pos) ) {
-        *target_pad = *i;
+        if ( *i != *other_pad) *target_pad = *i;
         break;
     }
 
     if ( *target_pad ) {
         (*target_pad)->key = Pad::DOWN;
-        emit padPressed((*target_pad)->i, (*target_pad)->j);
+        emit padPressed((*target_pad)->i, (*target_pad)->j, true);
         update();
     }
 }
@@ -89,7 +90,20 @@ void AutonomeWidget::mouseReleaseEvent(QMouseEvent *event) {
     if (*target_pad == NULL) return;
 
     (*target_pad)->key = Pad::UP;
-    emit padReleased((*target_pad)->i, (*target_pad)->j);
+    emit padPressed((*target_pad)->i, (*target_pad)->j, false);
     *target_pad = NULL;
     update();
 }
+
+void AutonomeWidget::setLed(int i,int j,bool on) {
+    if (i < 0 or j < 0 or i >= static_cast<int>(n) or j >= static_cast<int>(m)) return;
+
+    Pad *pad = pads[i*n + j];
+    Pad::LedStatus old_led = pad->led;
+
+    if (on) pad->led = Pad::ON;
+    else pad->led = Pad::OFF;
+    
+    if (old_led != pad->led) update();
+}
+

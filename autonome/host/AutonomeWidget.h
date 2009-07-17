@@ -10,14 +10,15 @@ Q_OBJECT
 public:
     AutonomeWidget(QWidget *parent=NULL,unsigned int n=8,unsigned int m=8,qreal border=10.,qreal min_pad_size=15.);
     ~AutonomeWidget();
+public slots:
+    void setLed(int i,int j,bool state);
 protected:
     virtual void paintEvent(QPaintEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 signals:
-    void padPressed(int i,int j);
-    void padReleased(int i,int j);
+    void padPressed(int i,int j,bool state);
 private:
     virtual void updateInternal(void);
 

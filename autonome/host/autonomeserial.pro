@@ -1,4 +1,5 @@
-CONFIG += qt debug
-SOURCES += AutonomeWidget.cpp SettingsWidget.cpp MainWindow.cpp
-HEADERS += AutonomeWidget.h   SettingsWidget.h   MainWindow.h
+CONFIG += qt debug link_pkgconfig
+PKGCONFIG += liblo
+SOURCES += AutonomeWidget.cpp OSCWidget.cpp SettingsWidget.cpp MainWindow.cpp
+HEADERS += AutonomeWidget.h   OSCWidget.h  SettingsWidget.h   MainWindow.h
 SOURCES += main.cpp
