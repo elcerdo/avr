@@ -14,7 +14,7 @@ void AutonomeWidget::Pad::paint(QPainter &painter) {
     painter.drawRoundedRect(rect,.1,.1);
 }
 
-AutonomeWidget::AutonomeWidget(unsigned int n,unsigned int m,qreal border,qreal min_pad_size,QWidget *parent) : QWidget(parent), left_pad(NULL), right_pad(NULL), n(n), m(m), border(border), min_size(min_pad_size) {
+AutonomeWidget::AutonomeWidget(QWidget *parent,unsigned int n,unsigned int m,qreal border,qreal min_pad_size) : QWidget(parent), left_pad(NULL), right_pad(NULL), n(n), m(m), border(border), min_size(min_pad_size) {
     setMinimumWidth(2*border + m*min_size);
     setMinimumHeight(2*border + n*min_size);
 

@@ -1,10 +1,12 @@
 #include <QApplication>
-#include "AutonomeWidget.h"
+#include "MainWindow.h"
 
 int main(int argc,char *argv[]) {
     QApplication app(argc,argv);
+    QApplication::setOrganizationName("elgatocorp");
+    QApplication::setApplicationName("autonomeserial");
 
-    AutonomeWidget main;
+    MainWindow main;
     main.show();
 
     return app.exec();

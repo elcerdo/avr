@@ -8,7 +8,7 @@
 class AutonomeWidget : public QWidget {
 Q_OBJECT
 public:
-    AutonomeWidget(unsigned int n=12,unsigned int m=8,qreal border=10.,qreal min_pad_size=15.,QWidget *parent=0);
+    AutonomeWidget(QWidget *parent=NULL,unsigned int n=8,unsigned int m=8,qreal border=10.,qreal min_pad_size=15.);
     ~AutonomeWidget();
 protected:
     virtual void paintEvent(QPaintEvent *event);
