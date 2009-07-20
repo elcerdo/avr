@@ -12,6 +12,9 @@ public:
     ~AutonomeWidget();
 public slots:
     void setLed(int i,int j,bool state);
+    void setLedColumn(int j,int value);
+    void setLedRow(int i,int value);
+    void clearLed();
 protected:
     virtual void paintEvent(QPaintEvent *event);
     virtual void resizeEvent(QResizeEvent *event);

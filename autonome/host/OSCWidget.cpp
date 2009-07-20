@@ -70,6 +70,9 @@ void OSCWidget::startServer() {
     prefix = "/" + settings.value("general/name").toString() + "/";
     server = lo_server_thread_new(qPrintable(settings.value("osc/server_port").toString()),server_err_callback);
     lo_server_thread_add_method(server,qPrintable(prefix + "led"),"iii",server_led_callback,NULL);
+    lo_server_thread_add_method(server,qPrintable(prefix + "clear"),"",server_clear_callback,NULL);
+    lo_server_thread_add_method(server,qPrintable(prefix + "led_col"),"ii",server_col_callback,NULL);
+    lo_server_thread_add_method(server,qPrintable(prefix + "led_row"),"ii",server_row_callback,NULL);
     lo_server_thread_add_method(server,NULL,NULL,server_all_callback,NULL);
     client = lo_address_new(qPrintable(settings.value("osc/client_name").toString()),qPrintable(settings.value("osc/client_port").toString()));
 
@@ -101,6 +104,40 @@ int OSCWidget::server_led_callback(const char *path, const char *types, lo_arg *
     Q_UNUSED( types );
     Q_UNUSED( msg );
     emit instance->setLed(argv[0]->i,argv[1]->i,argv[2]->i);
+    return 0;
+}
+
+int OSCWidget::server_clear_callback(const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *user_data) {
+    Q_ASSERT( instance );
+    Q_UNUSED( user_data );
+    Q_UNUSED( path );
+    Q_UNUSED( argc );
+    Q_UNUSED( types );
+    Q_UNUSED( msg );
+    Q_UNUSED( argv );
+    emit instance->clearLed();
+    return 0;
+}
+
+int OSCWidget::server_col_callback(const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *user_data) {
+    Q_ASSERT( instance );
+    Q_UNUSED( user_data );
+    Q_UNUSED( path );
+    Q_UNUSED( argc );
+    Q_UNUSED( types );
+    Q_UNUSED( msg );
+    emit instance->setLedColumn(argv[0]->i,argv[1]->i);
+    return 0;
+}
+
+int OSCWidget::server_row_callback(const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *user_data) {
+    Q_ASSERT( instance );
+    Q_UNUSED( user_data );
+    Q_UNUSED( path );
+    Q_UNUSED( argc );
+    Q_UNUSED( types );
+    Q_UNUSED( msg );
+    emit instance->setLedRow(argv[0]->i,argv[1]->i);
     return 0;
 }
 

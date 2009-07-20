@@ -98,7 +98,7 @@ void AutonomeWidget::mouseReleaseEvent(QMouseEvent *event) {
 void AutonomeWidget::setLed(int i,int j,bool on) {
     if (i < 0 or j < 0 or i >= static_cast<int>(n) or j >= static_cast<int>(m)) return;
 
-    Pad *pad = pads[i*n + j];
+    Pad *pad = pads[i*m + j];
     Pad::LedStatus old_led = pad->led;
 
     if (on) pad->led = Pad::ON;
@@ -107,3 +107,29 @@ void AutonomeWidget::setLed(int i,int j,bool on) {
     if (old_led != pad->led) update();
 }
 
+void AutonomeWidget::clearLed() {
+    for (Pads::iterator i=pads.begin(); i!=pads.end(); i++) (*i)->led = Pad::OFF;
+    update();
+}
+
+void AutonomeWidget::setLedColumn(int j,int value) {
+    if (j < 0 or j >= static_cast<int>(m)) return;
+
+    for (size_t k=0; k<n; k++) {
+        if (value & 1) pads[j + k*m]->led = Pad::ON;
+        else pads[j + k*m]->led = Pad::OFF;
+        value >>= 1;
+    }
+    update();
+}
+
+void AutonomeWidget::setLedRow(int i,int value) {
+    if (i < 0 or i >= static_cast<int>(n)) return;
+
+    for (size_t k=0; k<m; k++) {
+        if (value & 1) pads[k + i*m]->led = Pad::ON;
+        else pads[k + i*m]->led = Pad::OFF;
+        value >>= 1;
+    }
+    update();
+}
