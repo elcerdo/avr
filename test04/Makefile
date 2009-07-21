@@ -92,12 +92,11 @@ INC=-I../include/
 
 # libraries to link in (e.g. -lmylib)
 LIBS_INC=-L../include/
-LIBS=-lm -lsatel
+LIBS=-lsatel -lm 
 
 # Optimization level, 
 # use s (size opt), 1, 2, 3 or 0 (off)
 OPTLEVEL=s
-
 
 #####      AVR Dude 'writeflash' options       #####
 #####  If you are using the avrdude program

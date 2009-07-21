@@ -1,7 +1,7 @@
 MCU=atmega32
 PROJECTNAME=satel
 
-PRJSRC=keypad.c status.c
+PRJSRC=keypad.c status.c audio.c uart.c
 
 INC=-I../include/
 
