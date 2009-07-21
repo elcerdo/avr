@@ -1,18 +1,21 @@
 #include <stdio.h>
 #include <avr/interrupt.h>
+#include <avr/wdt.h>
 #include "keypad.h"
 #include "status.h"
 #include "audio.h"
 #include "uart.h"
 
 int main(void) {
+	cli();
+
+	wdt_enable(WDTO_1S);
+
 	uint8_t *keypad = NULL;
 	wave_t old_table;
 	uint8_t old_speed;
 
-	cli();
-	
-    keypad_init();
+	keypad_init();
 	status_init();
 	uart_init();
 	audio_init();
@@ -55,6 +58,8 @@ int main(void) {
 		if ( old_table != audio_get_table() || old_speed != audio_get_speed() ) uart_send_string(status_text,256);
 		old_table = audio_get_table();
 		old_speed = audio_get_speed();
+
+		wdt_reset();
 	}
 
 	cli();
