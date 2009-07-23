@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     autonome = new AutonomeWidget(tabs);
     settings = new SettingsWidget(tabs);
     osc = new OSCWidget(tabs);
+    usb = new UsbWidget(tabs);
 
     connect(osc,SIGNAL( setLed(int,int,bool) ),autonome,SLOT( setLed(int,int,bool) ));
     connect(osc,SIGNAL( setLedColumn(int,int) ),autonome,SLOT( setLedColumn(int,int) ));
@@ -17,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     tabs->addTab(autonome,"pad");
     tabs->addTab(osc,"osc");
+    tabs->addTab(usb,"usb");
     tabs->addTab(settings,"settings");
 
     setCentralWidget(tabs);

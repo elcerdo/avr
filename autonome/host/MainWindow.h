@@ -5,6 +5,7 @@
 #include "AutonomeWidget.h"
 #include "SettingsWidget.h"
 #include "OSCWidget.h"
+#include "UsbWidget.h"
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
@@ -14,6 +15,7 @@ private:
     OSCWidget *osc;
     AutonomeWidget *autonome;
     SettingsWidget *settings;
+    UsbWidget *usb;
 };
 
 #endif
