@@ -81,13 +81,13 @@
 #X connect 33 0 36 0;
 #X connect 33 0 39 0;
 #X connect 33 0 44 0;
-#X connect 34 0 35 1;
 #X connect 34 0 41 0;
 #X connect 35 0 30 0;
 #X connect 36 0 37 0;
 #X connect 37 0 32 0;
 #X connect 40 0 41 0;
 #X connect 41 0 42 0;
+#X connect 42 0 35 1;
 #X connect 43 0 38 0;
 #X connect 43 0 40 0;
 #X connect 44 0 43 0;
