@@ -76,6 +76,10 @@ MCU=atmega32
 # avrdude requires 'm8')
 PROGRAMMER_MCU=m32
 
+# cristal clock [hz]
+F_CPU=16000000
+DEBUG_LEVEL=0
+
 # Name of our project
 # (use a single word, e.g. 'myproject')
 PROJECTNAME=test04
@@ -85,7 +89,7 @@ PROJECTNAME=test04
 # (list all files to compile, e.g. 'a.c b.cpp as.S'):
 # Use .cc, .cpp or .C suffix for C++ files, use .S 
 # (NOT .s !!!) for assembly source code files.
-PRJSRC=main.c
+PRJSRC=main.c usbdrv/oddebug.c
 
 # additional includes (e.g. -I/path/to/mydir)
 INC=-I../include/
@@ -138,6 +142,8 @@ HEXFORMAT=ihex
 
 # compiler
 CFLAGS=-I. $(INC) -g -mmcu=$(MCU) -O$(OPTLEVEL) \
+        -DF_CPU=$(F_CPU)                        \
+        -DDEBUG_LEVEL=$(DEBUG_LEVEL)            \
 	-fpack-struct -fshort-enums             \
 	-funsigned-bitfields -funsigned-char    \
 	-Wall -Wstrict-prototypes               \
