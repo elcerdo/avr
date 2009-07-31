@@ -11,6 +11,7 @@ public:
     AutonomeWidget(QWidget *parent=NULL,unsigned int n=8,unsigned int m=8,qreal border=10.,qreal min_pad_size=15.);
     ~AutonomeWidget();
 public slots:
+    void pressPad(int i,int j,bool state);
     void setLed(int i,int j,bool state);
     void setLedColumn(int j,int value);
     void setLedRow(int i,int value);

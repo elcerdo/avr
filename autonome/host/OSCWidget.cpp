@@ -93,7 +93,7 @@ int OSCWidget::server_all_callback(const char *path, const char *types, lo_arg *
     Q_UNUSED( argv );
     Q_UNUSED( user_data );
     qWarning("[osc] got unhandled %s from %s with %d param(s) of type(s) %s",path,lo_address_get_url(lo_message_get_source(msg)),argc,types);
-    return 1;
+    return 0;
 }
 
 int OSCWidget::server_led_callback(const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *user_data) {

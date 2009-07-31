@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     connect(osc,SIGNAL( setLedRow(int,int) ),autonome,SLOT( setLedRow(int,int) ));
     connect(osc,SIGNAL( clearLed() ),autonome,SLOT( clearLed() ));
     connect(autonome,SIGNAL( padPressed(int,int,bool) ),osc,SLOT( padPressed(int,int,bool) ));
+    connect(usb,SIGNAL( padPressed(int,int,bool) ),autonome,SLOT( pressPad(int,int,bool) ));
 
     tabs->addTab(autonome,"pad");
     tabs->addTab(osc,"osc");

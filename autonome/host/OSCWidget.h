@@ -9,7 +9,7 @@
 class OSCWidget : public QWidget {
 Q_OBJECT
 public:
-    OSCWidget(QWidget *parent = NULL,bool autostart=true);
+    OSCWidget(QWidget *parent = NULL,bool autostart = true);
     ~OSCWidget();
 public slots:
     void setRunning(bool);
