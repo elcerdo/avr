@@ -1,7 +1,6 @@
 #ifndef __SATEL_AUDIO__
 #define __SATEL_AUDIO__
 
-#include <stdlib.h>
 #include <inttypes.h>
 
 void audio_on(uint32_t time);

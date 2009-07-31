@@ -4,6 +4,7 @@
 #include <math.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <stdlib.h>
 
 static uint8_t time = 0;
 static uint8_t speed = 1;

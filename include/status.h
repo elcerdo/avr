@@ -1,10 +1,9 @@
 #ifndef __SATEL_STATUS__
 #define __SATEL_STATUS__
 
-#define PSTATUS PB0
-
-#include <inttypes.h>
 #include <avr/io.h>
+
+#define PSTATUS PB0
 
 void status_init(void);
 void status_toggle(void);

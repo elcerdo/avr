@@ -1,8 +1,6 @@
 #ifndef __SATEL_KEYPAD__
 #define __SATEL_KEYPAD__
 
-#include <stdlib.h>
-#include <inttypes.h>
 #include <avr/io.h>
 
 #define PSDATA  PA0

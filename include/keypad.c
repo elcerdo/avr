@@ -1,5 +1,7 @@
 #include "keypad.h"
 
+#include <stdlib.h>
+
 static uint8_t *keypad = NULL;
 
 void keypad_init(void) {
