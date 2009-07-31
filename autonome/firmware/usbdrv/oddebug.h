@@ -25,7 +25,7 @@ the output and a memory block to dump in hex ('data' and 'len').
 
 
 #ifndef F_CPU
-#   define  F_CPU   12000000    /* 12 MHz */
+#   define  F_CPU   16000000    /* 16 MHz */
 #endif
 
 /* make sure we have the UART defines: */
@@ -109,14 +109,10 @@ extern void odDebug(uchar prefix, uchar *data, uchar len);
 #   define  ODDBG_UDR   UDR0
 #endif
 
-#ifndef UART_BAUD
-#   define UART_BAUD 9200
-#endif
-
 static inline void  odDebugInit(void)
 {
     ODDBG_UCR |= (1<<ODDBG_TXEN);
-    ODDBG_UBRR = F_CPU / (UART_BAUD * 16L) - 1;
+    ODDBG_UBRR = 103; // 9200 baud @ 16Mhz
 }
 #else
 #   define odDebugInit()

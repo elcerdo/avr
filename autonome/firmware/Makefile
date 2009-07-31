@@ -13,7 +13,7 @@ FUSE_L  = 0b11101111
 FUSE_H  = 0b10011001
 AVRDUDE = avrdude -c usbasp -p $(DEVICE) # edit this line for your programmer
 
-CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0  -funsigned-char -fpack-struct -fshort-enums -funsigned-bitfields
+CFLAGS  = -Iusbdrv -I. -I../../include -DDEBUG_LEVEL=0  -funsigned-char -fpack-struct -fshort-enums -funsigned-bitfields
 OBJECTS = usbdrv/usbdrv.o usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o
 
 COMPILE = avr-gcc -Wall -Os -DF_CPU=$(F_CPU) $(CFLAGS) -mmcu=$(DEVICE)
@@ -143,7 +143,7 @@ clean:
 # file targets:
 
 main.elf: $(OBJECTS)
-	$(COMPILE) -o main.elf $(OBJECTS)
+	$(COMPILE) -L../../include -o main.elf $(OBJECTS) -lsatel
 
 main.hex: main.elf
 	rm -f main.hex main.eep.hex
