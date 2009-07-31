@@ -30,6 +30,7 @@ different port or bit, change the macros below:
 #include "oddebug.h"        /* This is also an example for using debug macros */
 #include "requests.h"       /* The custom request numbers we use */
 #include "keypad.h"
+#include "led.h"
 
 /* ------------------------------------------------------------------------- */
 /* ----------------------------- USB interface ----------------------------- */
@@ -37,42 +38,54 @@ different port or bit, change the macros below:
 
 usbMsgLen_t usbFunctionSetup(uchar data[8])
 {
-usbRequest_t    *rq = (void *)data;
-static uchar    dataBuffer[4];  /* buffer must stay valid when usbFunctionSetup returns */
+	usbRequest_t    *rq = (void *)data;
+	static uchar    dataBuffer[4];  /* buffer must stay valid when usbFunctionSetup returns */
 
-    if(rq->bRequest == CUSTOM_RQ_ECHO){ /* echo -- used for reliability tests */
+    if (rq->bRequest == CUSTOM_RQ_ECHO){ /* echo -- used for reliability tests */
         dataBuffer[0] = rq->wValue.bytes[0];
         dataBuffer[1] = rq->wValue.bytes[1];
         dataBuffer[2] = rq->wIndex.bytes[0];
         dataBuffer[3] = rq->wIndex.bytes[1];
         usbMsgPtr = dataBuffer;         /* tell the driver which data to return */
         return 4;
-    }else if(rq->bRequest == CUSTOM_RQ_LED_SET_STATUS){
-        if(rq->wValue.bytes[0] & 1){    /* set LED */
+    } else if (rq->bRequest == CUSTOM_RQ_LED_SET_STATUS) {
+        if (rq->wValue.bytes[0] & 1){    /* set LED */
             LED_PORT_OUTPUT &= ~_BV(LED_BIT);
-        }else{                          /* clear LED */
+        } else {                          /* clear LED */
             LED_PORT_OUTPUT |= _BV(LED_BIT);
         }
-    }else if(rq->bRequest == CUSTOM_RQ_LED_GET_STATUS){
+    } else if (rq->bRequest == CUSTOM_RQ_LED_GET_STATUS) {
         dataBuffer[0] = ((LED_PORT_OUTPUT & _BV(LED_BIT)) != 0);
         usbMsgPtr = dataBuffer;         /* tell the driver which data to return */
         return 1;                       /* tell the driver to send 1 byte */
-    }else if(rq->bRequest == CUSTOM_RQ_KEY_GET_STATUS){
+    } else if (rq->bRequest == CUSTOM_RQ_KEY_GET_STATUS) {
         keypad_update();
         DBG1(0x02, keypad_get(), 8);
         usbMsgPtr = keypad_get();
         return 8;
-    }
+    } else if (rq->bRequest == CUSTOM_RQ_LEDS_SET_STATUS) {
+		return USB_NO_MSG;
+	}
     return 0;   /* default for not implemented requests: return no data back to host */
 }
 
 /* ------------------------------------------------------------------------- */
+
+uchar usbFunctionWrite(uchar *data, uchar len) {
+	static uint8_t k;
+	for (k=0; k<8; k++) led_send_command(k+1,data[k]);
+	return 1;
+}
 
 int main(void)
 {
     uchar   i;
 
     keypad_init();
+	led_init();
+
+	led_send_command(LED_DIGIT0,0x00);
+	led_send_command(LED_DIGIT1,0x00);
 
     wdt_enable(WDTO_1S);
     /* Even if you don't use the watchdog, turn it off here. On newer devices,

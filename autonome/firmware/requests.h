@@ -35,4 +35,7 @@
 #define CUSTOM_RQ_KEY_GET_STATUS    3
 /* Send keys to computer */
 
+#define CUSTOM_RQ_LEDS_SET_STATUS   4
+/* Set keypad leds */
+
 #endif /* __REQUESTS_H_INCLUDED__ */

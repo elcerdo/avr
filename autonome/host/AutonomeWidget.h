@@ -23,8 +23,10 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event);
 signals:
     void padPressed(int i,int j,bool state);
+    void ledsSetted(const unsigned char *);
 private:
     virtual void updateInternal(void);
+    virtual void updateLedState(void);
 
     struct Pad {
         enum KeyStatus { UP=0 , DOWN=1 };
@@ -48,6 +50,7 @@ private:
     size_t n,m;
     QPointF base;
     qreal border,size,min_size;
+    unsigned char *led_state;
 };
 
 

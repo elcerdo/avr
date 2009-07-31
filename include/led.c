@@ -45,7 +45,7 @@ void led_init(void) {
 
 	led_send_command(LED_SHUTDOWN,LED_SHUTDOWN_OFF);
 	led_send_command(LED_TEST,LED_TEST_OFF);
-	led_send_command(LED_LIMIT,2);
+	led_send_command(LED_LIMIT,LED_LIMIT_ALL);
 	led_send_command(LED_DECODE,0);
 	led_send_command(LED_SHUTDOWN,LED_SHUTDOWN_ON);
 }

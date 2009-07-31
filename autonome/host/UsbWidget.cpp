@@ -87,6 +87,14 @@ void UsbWidget::setLed(bool on) {
     if ( cnt < 0 ) deviceError();
 }
 
+void UsbWidget::setLeds(const unsigned char *state) {
+    Q_ASSERT( sizeof(state) == 8 );
+    if ( handle == NULL or not pool_timer->isActive() ) return;
+
+    int cnt = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, CUSTOM_RQ_LEDS_SET_STATUS, 0, 0, reinterpret_cast<char*>(const_cast<unsigned char*>(state)), 8, 5000);
+    if ( cnt < 0 ) deviceError();
+}
+
 void UsbWidget::update() {
     if ( handle == NULL ) return;
 

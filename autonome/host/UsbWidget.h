@@ -14,6 +14,7 @@ public:
     ~UsbWidget();
 public slots:
     void setRunning(bool on);
+    void setLeds(const unsigned char *state);
     void update(void);
 signals:
     void padPressed(int i,int j,bool state);
