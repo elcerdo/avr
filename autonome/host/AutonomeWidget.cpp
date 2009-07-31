@@ -73,9 +73,12 @@ void AutonomeWidget::mousePressEvent(QMouseEvent *event) {
     }
 
     if ( *target_pad ) {
+        Pad::KeyStatus old_key = (*target_pad)->key;
         (*target_pad)->key = Pad::DOWN;
-        emit padPressed((*target_pad)->i, (*target_pad)->j, true);
-        update();
+        if (old_key != Pad::DOWN) {
+            emit padPressed((*target_pad)->i, (*target_pad)->j, true);
+            update();
+        }
     }
 }
 
@@ -89,10 +92,14 @@ void AutonomeWidget::mouseReleaseEvent(QMouseEvent *event) {
 
     if (*target_pad == NULL) return;
 
+    Pad::KeyStatus old_key = (*target_pad)->key;
     (*target_pad)->key = Pad::UP;
-    emit padPressed((*target_pad)->i, (*target_pad)->j, false);
+    if (old_key != Pad::UP) {
+        emit padPressed((*target_pad)->i, (*target_pad)->j, false);
+        update();
+    }
+
     *target_pad = NULL;
-    update();
 }
 
 void AutonomeWidget::pressPad(int i,int j,bool state) {
@@ -104,8 +111,10 @@ void AutonomeWidget::pressPad(int i,int j,bool state) {
     if (state) pad->key = Pad::DOWN;
     else pad->key = Pad::UP;
     
-    if (old_key != pad->key) update();
-    emit padPressed(i, j, state);
+    if (old_key != pad->key) {
+        update();
+        emit padPressed(i, j, state);
+    }
 }
 
 void AutonomeWidget::setLed(int i,int j,bool on) {
