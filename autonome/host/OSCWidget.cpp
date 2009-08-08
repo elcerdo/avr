@@ -71,6 +71,8 @@ void OSCWidget::startServer() {
     server = lo_server_thread_new(qPrintable(settings.value("osc/server_port").toString()),server_err_callback);
     lo_server_thread_add_method(server,qPrintable(prefix + "led"),"iii",server_led_callback,NULL);
     lo_server_thread_add_method(server,qPrintable(prefix + "clear"),"",server_clear_callback,NULL);
+    lo_server_thread_add_method(server,qPrintable(prefix + "layer"),"i",server_layer_callback,NULL);
+    lo_server_thread_add_method(server,qPrintable(prefix + "frame"),"iiiiiiii",server_frame_callback,NULL);
     lo_server_thread_add_method(server,qPrintable(prefix + "led_col"),"ii",server_col_callback,NULL);
     lo_server_thread_add_method(server,qPrintable(prefix + "led_row"),"ii",server_row_callback,NULL);
     lo_server_thread_add_method(server,NULL,NULL,server_all_callback,NULL);
@@ -104,6 +106,28 @@ int OSCWidget::server_led_callback(const char *path, const char *types, lo_arg *
     Q_UNUSED( types );
     Q_UNUSED( msg );
     emit instance->setLed(argv[0]->i,argv[1]->i,argv[2]->i);
+    return 0;
+}
+
+int OSCWidget::server_layer_callback(const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *user_data) {
+    Q_ASSERT( instance );
+    Q_UNUSED( user_data );
+    Q_UNUSED( path );
+    Q_UNUSED( argc );
+    Q_UNUSED( types );
+    Q_UNUSED( msg );
+    emit instance->setLayer(argv[0]->i);
+    return 0;
+}
+
+int OSCWidget::server_frame_callback(const char *path, const char *types, lo_arg **argv, int argc, lo_message msg, void *user_data) {
+    Q_ASSERT( instance );
+    Q_UNUSED( user_data );
+    Q_UNUSED( path );
+    Q_UNUSED( argc );
+    Q_UNUSED( types );
+    Q_UNUSED( msg );
+    for (size_t k=0; k<8; k++) emit instance->setLedColumn(k,argv[k]->i);
     return 0;
 }
 

@@ -80,6 +80,13 @@ void UsbWidget::deviceError() {
     setRunning( false );
 }
 
+void UsbWidget::setLayer(int k) {
+    if ( handle == NULL ) return;
+
+    int cnt = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, CUSTOM_RQ_LEDS_SET_LAYER, k, 0, NULL, 0, 5000);
+    if ( cnt < 0 ) deviceError();
+}
+
 void UsbWidget::setLed(bool on) {
     if ( handle == NULL ) return;
 

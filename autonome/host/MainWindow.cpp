@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     connect(osc,SIGNAL( setLed(int,int,bool) ),autonome,SLOT( setLed(int,int,bool) ));
     connect(osc,SIGNAL( setLedColumn(int,int) ),autonome,SLOT( setLedColumn(int,int) ));
+    connect(osc,SIGNAL( setLayer(int) ),autonome,SLOT( setLayer(int) ));
     connect(osc,SIGNAL( setLedRow(int,int) ),autonome,SLOT( setLedRow(int,int) ));
     connect(osc,SIGNAL( clearLed() ),autonome,SLOT( clearLed() ));
     connect(autonome,SIGNAL( padPressed(int,int,bool) ),osc,SLOT( padPressed(int,int,bool) ));

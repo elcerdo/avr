@@ -13,6 +13,7 @@ public:
 public slots:
     void pressPad(int i,int j,bool state);
     void setLed(int i,int j,bool state);
+    void setLayer(int k);
     void setLedColumn(int j,int value);
     void setLedRow(int i,int value);
     void clearLed();
@@ -24,6 +25,7 @@ protected:
 signals:
     void padPressed(int i,int j,bool state);
     void ledsSetted(const unsigned char *);
+    void layerSetted(int k);
 private:
     virtual void updateInternal(void);
     virtual void updateLedState(void);
@@ -36,13 +38,14 @@ private:
         void paint(QPainter &painter);
 
         KeyStatus key;
-        LedStatus led;
+        LedStatus leds[4];
         const size_t i,j;
         const size_t n,m;
         const QRectF rect;
     };
 
     typedef QVector<Pad*> Pads;
+    int current_layer;
     Pads pads;
     Pad *left_pad;
     Pad *right_pad;

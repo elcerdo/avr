@@ -14,6 +14,7 @@ public:
     ~UsbWidget();
 public slots:
     void setRunning(bool on);
+    void setLayer(int k);
     void setLeds(const unsigned char *state);
     void update(void);
 signals:

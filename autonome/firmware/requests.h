@@ -16,26 +16,16 @@
 #ifndef __REQUESTS_H_INCLUDED__
 #define __REQUESTS_H_INCLUDED__
 
-#define CUSTOM_RQ_ECHO              0
-/* For retaility test */
-
 #define CUSTOM_RQ_LED_SET_STATUS    1
-/* Set the LED status. Control-OUT.
- * The requested status is passed in the "wValue" field of the control
- * transfer. No OUT data is sent. Bit 0 of the low byte of wValue controls
- * the LED.
- */
-
-#define CUSTOM_RQ_LED_GET_STATUS    2
-/* Get the current LED status. Control-IN.
- * This control transfer involves a 1 byte data phase where the device sends
- * the current status to the host. The status is in bit 0 of the byte.
- */
+/* Set the LED status. Control-OUT */
 
 #define CUSTOM_RQ_KEY_GET_STATUS    3
 /* Send keys to computer */
 
 #define CUSTOM_RQ_LEDS_SET_STATUS   4
-/* Set keypad leds */
+/* Set current layers keypad leds */
+
+#define CUSTOM_RQ_LEDS_SET_LAYER    5
+/* Select active layer */
 
 #endif /* __REQUESTS_H_INCLUDED__ */

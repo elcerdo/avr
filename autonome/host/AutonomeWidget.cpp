@@ -7,14 +7,18 @@
 
 const static QBrush brushes[4] = { QBrush(Qt::white), QBrush(QColor::fromRgb(230,230,230)), QBrush(QColor::fromRgb(170,255,255)), QBrush(QColor::fromRgb(120,200,200)) };
 
-AutonomeWidget::Pad::Pad(size_t ii,size_t jj,size_t nn,size_t mm) : key(UP), led(OFF), i(ii), j(jj), n(nn), m(mm), rect((jj-mm/2.)+.05,(ii-nn/2.)+.05,.9,.9) {}
+AutonomeWidget::Pad::Pad(size_t ii,size_t jj,size_t nn,size_t mm) : key(UP), i(ii), j(jj), n(nn), m(mm), rect((jj-mm/2.)+.05,(ii-nn/2.)+.05,.9,.9) {
+    for (size_t k=0; k<4; k++) leds[k] = OFF;
+}
 
 void AutonomeWidget::Pad::paint(QPainter &painter) {
-    painter.setBrush(brushes[led+key]);
+    LedStatus current = OFF;
+    for (size_t k=0; k<4; k++) if (leds[k] == ON) current = ON;
+    painter.setBrush(brushes[current|key]);
     painter.drawRoundedRect(rect,.1,.1);
 }
 
-AutonomeWidget::AutonomeWidget(QWidget *parent,unsigned int n,unsigned int m,qreal border,qreal min_pad_size) : QWidget(parent), left_pad(NULL), right_pad(NULL), n(n), m(m), border(border), min_size(min_pad_size), led_state(NULL) {
+AutonomeWidget::AutonomeWidget(QWidget *parent,unsigned int n,unsigned int m,qreal border,qreal min_pad_size) : QWidget(parent), current_layer(0), left_pad(NULL), right_pad(NULL), n(n), m(m), border(border), min_size(min_pad_size), led_state(NULL) {
     setMinimumWidth(2*border + m*min_size);
     setMinimumHeight(2*border + n*min_size);
 
@@ -126,7 +130,7 @@ void AutonomeWidget::updateLedState(void) {
     for (size_t i=0; i<n; i++) {
         led_state[i] = 0;
         for (size_t j=0; j<m; j++) {
-            if ( (*pad)->led == Pad::ON ) led_state[i] |= (1<<j);
+            for (size_t k=0; k<4; k++) if ( (*pad)->leds[k] == Pad::ON ) led_state[i] |= (1<<j);
             pad++;
         }
     }
@@ -136,20 +140,25 @@ void AutonomeWidget::setLed(int i,int j,bool on) {
     if (i < 0 or j < 0 or i >= static_cast<int>(n) or j >= static_cast<int>(m)) return;
 
     Pad *pad = pads[i*m + j];
-    Pad::LedStatus old_led = pad->led;
+    Pad::LedStatus old_led = pad->leds[current_layer];
 
-    if (on) pad->led = Pad::ON;
-    else pad->led = Pad::OFF;
+    if (on) pad->leds[current_layer] = Pad::ON;
+    else pad->leds[current_layer] = Pad::OFF;
     
-    if (old_led != pad->led) {
+    if (old_led != pad->leds[current_layer]) {
         update();
         updateLedState();
         emit ledsSetted(led_state);
     }
 }
 
+void AutonomeWidget::setLayer(int k) {
+    if (k<0 or k>4) return;
+    current_layer = k;
+}
+
 void AutonomeWidget::clearLed() {
-    for (Pads::iterator i=pads.begin(); i!=pads.end(); i++) (*i)->led = Pad::OFF;
+    for (Pads::iterator i=pads.begin(); i!=pads.end(); i++) (*i)->leds[current_layer] = Pad::OFF;
     update();
     updateLedState();
     emit ledsSetted(led_state);
@@ -159,8 +168,8 @@ void AutonomeWidget::setLedColumn(int j,int value) {
     if (j < 0 or j >= static_cast<int>(m)) return;
 
     for (size_t k=0; k<n; k++) {
-        if (value & 1) pads[j + k*m]->led = Pad::ON;
-        else pads[j + k*m]->led = Pad::OFF;
+        if (value & 1) pads[j + k*m]->leds[current_layer] = Pad::ON;
+        else pads[j + k*m]->leds[current_layer] = Pad::OFF;
         value >>= 1;
     }
 
@@ -173,8 +182,8 @@ void AutonomeWidget::setLedRow(int i,int value) {
     if (i < 0 or i >= static_cast<int>(n)) return;
 
     for (size_t k=0; k<m; k++) {
-        if (value & 1) pads[k + i*m]->led = Pad::ON;
-        else pads[k + i*m]->led = Pad::OFF;
+        if (value & 1) pads[k + i*m]->leds[current_layer] = Pad::ON;
+        else pads[k + i*m]->leds[current_layer] = Pad::OFF;
         value >>= 1;
     }
 
