@@ -1,6 +1,7 @@
 #include "UsbWidget.h"
 
 #include <QVBoxLayout>
+#include <QSettings>
 #include "usbdrv/opendevice.h"
 #include "../firmware/usbconfig.h"
 #include "../firmware/requests.h"
@@ -9,6 +10,7 @@ static const unsigned char rawVid[2] = {USB_CFG_VENDOR_ID}, rawPid[2] = {USB_CFG
 static const char          vendor[] = {USB_CFG_VENDOR_NAME, 0}, product[] = {USB_CFG_DEVICE_NAME, 0};
 
 UsbWidget::UsbWidget(QWidget *parent,bool autostart) : QWidget(parent), handle(NULL), old_buffer(NULL) {
+    QSettings settings;
     usb_init();
 
     setLayout(new QVBoxLayout(this));
@@ -17,6 +19,13 @@ UsbWidget::UsbWidget(QWidget *parent,bool autostart) : QWidget(parent), handle(N
     button->setCheckable(true);
     connect(button,SIGNAL( clicked(bool) ),this,SLOT( setRunning(bool) )); 
     layout()->addWidget(button);
+
+    intensity = new QSlider(Qt::Horizontal,this);
+    intensity->setRange(0,0x0f);
+    intensity->setValue(settings.value("usb/intensity",7).toInt());
+    connect(intensity,SIGNAL( valueChanged(int) ),this,SLOT( setIntensity(int) ));
+    connect(button,SIGNAL( clicked(bool) ),intensity,SLOT( setEnabled(bool) ));
+    layout()->addWidget(intensity);
 
     status = new QLabel("Device status",this);
     layout()->addWidget(status);
@@ -40,6 +49,7 @@ void UsbWidget::setRunning(bool on) {
     if ( not findDevice() ) { 
         status->setText("Device error");
         button->setChecked(false);
+        intensity->setEnabled(false);
         pool_timer->stop();
         return;
     }
@@ -78,6 +88,16 @@ void UsbWidget::deviceError() {
     handle = NULL;
 
     setRunning( false );
+}
+
+void UsbWidget::setIntensity(int k) {
+    if ( handle == NULL ) return;
+
+    int cnt = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT, CUSTOM_RQ_LEDS_SET_INTENSITY, k, 0, NULL, 0, 5000);
+    if ( cnt < 0 ) deviceError();
+    
+    QSettings settings;
+    settings.setValue("usb/intensity",k);
 }
 
 void UsbWidget::setLayer(int k) {

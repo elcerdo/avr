@@ -16,16 +16,18 @@
 #ifndef __REQUESTS_H_INCLUDED__
 #define __REQUESTS_H_INCLUDED__
 
-#define CUSTOM_RQ_LED_SET_STATUS    1
+#define CUSTOM_RQ_LED_SET_STATUS     1
 /* Set the LED status. Control-OUT */
 
-#define CUSTOM_RQ_KEY_GET_STATUS    3
+#define CUSTOM_RQ_KEY_GET_STATUS     3
 /* Send keys to computer */
 
-#define CUSTOM_RQ_LEDS_SET_STATUS   4
+#define CUSTOM_RQ_LEDS_SET_STATUS    4
 /* Set current layers keypad leds */
 
-#define CUSTOM_RQ_LEDS_SET_LAYER    5
+#define CUSTOM_RQ_LEDS_SET_LAYER     5
 /* Select active layer */
+
+#define CUSTOM_RQ_LEDS_SET_INTENSITY 6
 
 #endif /* __REQUESTS_H_INCLUDED__ */

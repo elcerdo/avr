@@ -44,6 +44,8 @@ usbMsgLen_t usbFunctionSetup(uchar data[8])
         return USB_NO_MSG;
     } else if (rq->bRequest == CUSTOM_RQ_LEDS_SET_LAYER) {
         if (rq->wValue.word >= 0 && rq->wValue.word < MAXLAYER) current_layer = rq->wValue.word;
+	} else if (rq->bRequest == CUSTOM_RQ_LEDS_SET_INTENSITY) {
+        led_send_command(LED_INTENSITY,rq->wValue.bytes[0]);
     }
     return 0;
 }
