@@ -99,6 +99,8 @@ int main(void) {
     sei();
     do {} while(position_target != position_current);
 
+    loop_until_bit_is_clear(PINB, PINB1);
+
     cli();
     position_target = 0;
     sei();
