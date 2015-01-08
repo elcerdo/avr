@@ -7,7 +7,7 @@ static uint8_t cycle = 0;
 static int16_t position_current = 0;
 static int16_t position_target = 0;
 
-void motor_callback(void) {
+void motor_callback8(void) {
 
   if (position_current == position_target )
   {
@@ -61,13 +61,55 @@ void motor_callback(void) {
 
 }
 
+void motor_callback4(void) {
+
+  if (position_current == position_target )
+  {
+    PORTA = 0xff;
+    return;
+  }
+
+  switch (cycle)
+  {
+    case 0:
+      PORTA = ~( _BV(PA0) );
+      break;
+    case 1:
+      PORTA = ~( _BV(PA1) );
+      break;
+    case 2:
+      PORTA = ~( _BV(PA4) );
+      break;
+    case 3:
+      PORTA = ~( _BV(PA5) );
+      break;
+    default:
+      PORTA = 0xff;
+      break;
+  }
+
+  if (position_current > position_target)
+  {
+    position_current--;
+    cycle--;
+  }
+  else
+  {
+    position_current++;
+    cycle++;
+  }
+
+  cycle %= 4;
+
+}
+
 static uint8_t delay=0;
 
 ISR(TIMER0_COMP_vect) {
   delay++;
   if (delay>127 || bit_is_clear(PINB, PINB1)) status_set(0);
   else status_toggle();
-  motor_callback();
+  motor_callback8();
 }
 
 
@@ -83,14 +125,12 @@ int main(void) {
   PORTB = _BV(PB1);
 
   //setup timer 0
-  TCCR0 = _BV(WGM01) | _BV(CS02);
+  TCCR0 = _BV(WGM01) | _BV(CS02) | _BV(CS00);
   OCR0 = 0xff;
   TIMSK = _BV(OCIE0);
 
   sei();
 
-
-  uint32_t counter;
   while (1) {
     loop_until_bit_is_clear(PINB, PINB1);
 
