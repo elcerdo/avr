@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "status.h"
 
 static uint8_t cycle = 0;
 static int16_t position_current = 0;
 static int16_t position_target = 0;
 
-void bump(void) {
+void motor_callback(void) {
 
   if (position_current == position_target )
   {
@@ -64,8 +65,9 @@ static uint8_t delay=0;
 
 ISR(TIMER0_COMP_vect) {
   delay++;
-  if (delay>127) PORTB = _BV(PB0);
-  else PORTB = _BV(PB0) & ~PORTB;
+  if (delay>127 || bit_is_clear(PINB, PINB1)) status_set(0);
+  else status_toggle();
+  motor_callback();
 }
 
 
@@ -78,32 +80,29 @@ int main(void) {
 
   //set bit to clear dev board led
   PORTA = 0xff;
-  PORTB = _BV(PB0);
+  PORTB = _BV(PB1);
 
   //setup timer 0
-  TCCR0 = _BV(WGM01) | _BV(CS02) | _BV(CS00);
+  TCCR0 = _BV(WGM01) | _BV(CS02);
   OCR0 = 0xff;
   TIMSK = _BV(OCIE0);
 
   sei();
 
-  uint8_t forward = 1;
+
   uint32_t counter;
   while (1) {
-    for (counter=0; counter<400; counter++) {}
-    if (position_target == position_current)
-    {
-      if (forward) {
-        position_target = 8*64;
-        forward = 0;
-      }
-      else
-      {
-        position_target = 0;
-        forward = 1;
-      }
-    }
-    bump();
+    loop_until_bit_is_clear(PINB, PINB1);
+
+    cli();
+    position_target = 8*32;
+    sei();
+    do {} while(position_target != position_current);
+
+    cli();
+    position_target = 0;
+    sei();
+    do {} while(position_target != position_current);
   }
 
   return 0;
